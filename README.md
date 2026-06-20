@@ -43,7 +43,7 @@ how likely two invoices are the same bill, even when someone has nudged the fiel
 to dodge an exact-match check. It is also built as the **feature layer for a
 machine-learning model** - the per-field similarity scores are ML features and the
 ground-truth answer key is labels, so a trained classifier drops straight on top
-(see [Machine learning](#machine-learning-where-this-fits)).
+(see [Machine learning](#machine-learning)).
 
 ---
 
