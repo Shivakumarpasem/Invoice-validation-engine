@@ -10,3 +10,6 @@ rapidfuzz>=3.0
 
 # Trained ML classifier on the similarity features (Step 10).
 scikit-learn>=1.3
+
+# Test suite.
+pytest>=7.0

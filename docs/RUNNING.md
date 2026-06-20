@@ -64,6 +64,17 @@ python -m invoice_engine.ml.run
 
 See [ML layer](ML.md) for what it does and why.
 
+## Running the tests
+
+The test suite checks the core logic (similarity metrics, blocking, scoring,
+validation, leading-zero preservation, and the ML feature table). It uses small
+in-memory examples and needs no database:
+
+```bash
+python -m pytest          # run all tests
+python -m pytest -q       # quiet one-line-per-file output
+```
+
 ## Using your own data
 
 To run on real ERP invoices instead of the synthetic set, see
