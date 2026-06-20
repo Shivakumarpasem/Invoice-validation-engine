@@ -2,7 +2,7 @@
 
 Produces *correct* invoices drawn from the fixed party pool: line items that
 sum exactly to the header total, valid dates, consistent terms. The deliberate
-problems (duplicates, broken sums, ...) are layered on top in Step 3b — keeping
+problems (duplicates, broken sums, ...) are layered on top in Step 3b - keeping
 "clean" and "messy" separate means our ground-truth answer key is unambiguous.
 
 Money is handled as Python ``Decimal`` so sums are exact (no float drift), then
@@ -35,8 +35,8 @@ _TERMS_DAYS = {
 
 # Money/decimal columns, declared once so every builder agrees on the dtype.
 _INVOICE_SCHEMA = {
-    "record_id": pl.Int64,  # internal surrogate key — ALWAYS unique, links lines
-    "invoice_id": pl.String,  # printed business number — allowed to repeat / be wrong
+    "record_id": pl.Int64,  # internal surrogate key - ALWAYS unique, links lines
+    "invoice_id": pl.String,  # printed business number - allowed to repeat / be wrong
     "direction": pl.String,
     "party_id": pl.String,
     "party_name": pl.String,
@@ -63,7 +63,7 @@ _LINE_ITEM_SCHEMA = {
 
 
 def _money(value: Decimal) -> Decimal:
-    """Round to cents — the only place money precision is decided."""
+    """Round to cents - the only place money precision is decided."""
     return value.quantize(_CENT)
 
 
@@ -92,7 +92,7 @@ def generate_clean_invoices(
         subtotal = Decimal("0.00")
         for _ in range(n_lines):
             qty = rng.randint(1, 20)
-            unit_price = _money(Decimal(rng.randint(500, 50_000)) / 100)  # $5–$500
+            unit_price = _money(Decimal(rng.randint(500, 50_000)) / 100)  # $5-$500
             line_total = _money(unit_price * qty)
             subtotal += line_total
             line_items.append(

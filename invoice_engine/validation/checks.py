@@ -4,7 +4,7 @@ Each check returns a polars frame of FINDINGS in one uniform shape:
     record_id | check_name | severity | detail
 so every check stacks into a single tidy findings table.
 
-NOTE: these checks catch INTEGRITY problems. They do NOT catch duplicates — that
+NOTE: these checks catch INTEGRITY problems. They do NOT catch duplicates - that
 is deliberately the job of the fuzzy detector (Step 6). Validation answers "is
 this one invoice internally valid?"; duplicate detection answers "is this the
 same bill as another?".
@@ -82,7 +82,7 @@ def check_missing_po(invoices: pl.DataFrame, line_items: pl.DataFrame) -> pl.Dat
     A 'warning', not an 'error': some invoices legitimately have no PO. The data
     alone can't tell a removed PO from one that never existed, so we surface it
     rather than reject it. (A full three-way match of qty/price against PO +
-    receipt data is deferred — we don't generate PO/receipt lines in v1.)
+    receipt data is deferred - we don't generate PO/receipt lines in v1.)
     """
     bad = invoices.filter(pl.col("po_number").is_null())
     return _finding(

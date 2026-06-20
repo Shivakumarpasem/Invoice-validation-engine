@@ -36,12 +36,12 @@ class GeneratorConfig:
 
     # --- Messiness counts (Step 3b): how many of each problem to plant ---
     # "Test-coverage" mix: known, fixed counts so we can grade the detector.
-    # DUPLICATE family — each ADDS a sneaky near-copy of a real invoice:
+    # DUPLICATE family - each ADDS a sneaky near-copy of a real invoice:
     n_exact_duplicate: int = 40  # same printed number (exact-match WOULD catch this)
     n_leading_zero: int = 40  # "0" prefixed to the number (exact-match misses)
     n_reworded_vendor: int = 40  # vendor name reworded, number changed
     n_tweaked_number: int = 40  # same amount+date, different number
-    # INTEGRITY family — each CORRUPTS one field on an existing clean invoice:
+    # INTEGRITY family - each CORRUPTS one field on an existing clean invoice:
     n_broken_sum: int = 50  # header total no longer equals the line items
     n_missing_po: int = 40  # PO removed from an invoice that had one
     n_bad_date: int = 30  # due_date set before invoice_date

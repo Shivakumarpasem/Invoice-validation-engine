@@ -1,9 +1,9 @@
-"""The messiness layer — deliberately plant the problems we want to catch.
+"""The messiness layer - deliberately plant the problems we want to catch.
 
 Takes the clean invoices and:
-  * DUPLICATE family — ADDS sneaky near-copies of real invoices (exact resubmit,
+  * DUPLICATE family - ADDS sneaky near-copies of real invoices (exact resubmit,
     leading-zero number, reworded vendor, tweaked number).
-  * INTEGRITY family — CORRUPTS one field on existing clean invoices (broken sum,
+  * INTEGRITY family - CORRUPTS one field on existing clean invoices (broken sum,
     missing PO, bad date).
 
 Everything planted is recorded in a **ground-truth** table (the answer key):
@@ -89,7 +89,7 @@ class _Messer:
             self._add_duplicate(
                 original, "exact_duplicate",
                 "identical resubmission (same invoice number)",
-                mutate=lambda inv: None,  # change nothing — a true exact copy
+                mutate=lambda inv: None,  # change nothing - a true exact copy
             )
 
     def plant_leading_zero(self):

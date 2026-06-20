@@ -1,7 +1,7 @@
 """Load the raw CSVs into typed polars frames.
 
 The single most important job here: force column types on read. A CSV has no
-types, so polars would *guess* — and it would read invoice_id "0412809" as the
+types, so polars would *guess* - and it would read invoice_id "0412809" as the
 integer 412809, silently destroying the leading-zero forgery we planted. We
 override the types instead of guessing.
 """
@@ -17,7 +17,7 @@ RAW_DIR = Path("data/raw")
 # Columns we must NOT let polars auto-infer.
 _INVOICE_OVERRIDES = {
     "record_id": pl.Int64,
-    "invoice_id": pl.String,   # keep leading zeros — the whole point
+    "invoice_id": pl.String,   # keep leading zeros - the whole point
     "party_id": pl.String,
     "po_number": pl.String,
     "invoice_amount": pl.Decimal(scale=2),  # exact money, not float

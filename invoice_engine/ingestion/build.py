@@ -40,7 +40,7 @@ def _verify(db_path, frames):
         ).fetchall()
         for r in rows:
             print(f"  record {r[0]}: invoice_id={r[1]!r}  amount={r[2]!r}")
-        print("  (invoice_id is text + amount is exact text — both preserved)")
+        print("  (invoice_id is text + amount is exact text - both preserved)")
     finally:
         con.close()
 

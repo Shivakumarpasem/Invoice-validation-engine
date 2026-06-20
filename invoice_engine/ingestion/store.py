@@ -3,7 +3,7 @@
 Uses Python's built-in ``sqlite3`` (no extra dependency, fully self-contained).
 
 Money + date storage choice: SQLite has no exact-decimal or date type. Its
-NUMERIC affinity would turn our Decimal into a float (REAL) — reintroducing the
+NUMERIC affinity would turn our Decimal into a float (REAL) - reintroducing the
 rounding error we deliberately avoided. So money and dates are stored as TEXT
 (exact decimal strings / ISO date strings) and parsed back to Decimal/Date when
 we compute. Keys and quantities stay INTEGER.

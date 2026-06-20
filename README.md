@@ -1,6 +1,6 @@
-# Invoice Validation Engine — Fuzzy Duplicate Detection
+# Invoice Validation Engine - Fuzzy Duplicate Detection
 
-Catch problem invoices *before* they get paid — especially the **near-duplicate
+Catch problem invoices *before* they get paid - especially the **near-duplicate
 invoices** that standard exact-match ERP checks silently miss.
 
 On a controlled dataset of 2,160 invoices with 160 planted duplicates:
@@ -10,7 +10,7 @@ On a controlled dataset of 2,160 invoices with 160 planted duplicates:
 | Naive exact-match (what ERPs ship with) | 40 / 160 | 25% |
 | **This engine (fuzzy / similarity-based)** | **160 / 160** | **100%** |
 
-The fuzzy layer recovers **120 near-duplicates that exact-match never sees** — at
+The fuzzy layer recovers **120 near-duplicates that exact-match never sees** - at
 zero false positives on this dataset.
 
 ---
@@ -19,14 +19,14 @@ zero false positives on this dataset.
 
 I worked on Oracle Integration Cloud (OIC) pipelines moving AP/AR/GL data into
 Oracle ERP for an enterprise client. It was a relatively short engagement, so I
-sat *one step downstream* of the data-quality problem — moving data between
-systems — without personally living the pain AP teams face every day.
+sat *one step downstream* of the data-quality problem - moving data between
+systems - without personally living the pain AP teams face every day.
 
 I wanted to build an ERP-related project to deepen that exposure, so I went
 looking for the problems people who actually live in these systems struggle with.
 One kept surfacing in AP forums and audit reports: **duplicate invoices.**
 
-Big ERP systems (SAP, Oracle) *do* have duplicate-invoice checks — but they are
+Big ERP systems (SAP, Oracle) *do* have duplicate-invoice checks - but they are
 **exact-match**. They get beaten by trivial tricks:
 
 - a leading zero added to the invoice number (`00123` vs `123`),
@@ -35,13 +35,13 @@ Big ERP systems (SAP, Oracle) *do* have duplicate-invoice checks — but they ar
 - the same supplier set up under two profiles.
 
 A federal forensic audit documented a vendor splitting one invoice into two
-submissions — one with a `00` prefix, one without — to slip past Oracle's
+submissions - one with a `00` prefix, one without - to slip past Oracle's
 duplicate check. It is a real, documented gap that exact-match logic cannot close.
 
 This project is the **similarity / record-linkage layer that closes it**: it scores
 how likely two invoices are the same bill, even when someone has nudged the fields
 to dodge an exact-match check. It is also built as the **feature layer for a
-machine-learning model** — the per-field similarity scores are ML features and the
+machine-learning model** - the per-field similarity scores are ML features and the
 ground-truth answer key is labels, so a trained classifier drops straight on top
 (see [Machine learning](#machine-learning-where-this-fits)).
 
@@ -63,7 +63,7 @@ generate  ->  ingest + clean  ->  validate  ->  detect duplicates  ->  rank  -> 
 
 1. **Blocking.** Comparing every invoice against every other is ~2.3M
    comparisons here (and trillions at real scale). So we *block*: only compare
-   invoices that share a `party_id`. This is the standard record-linkage move —
+   invoices that share a `party_id`. This is the standard record-linkage move -
    it cuts the work ~40x with no loss of true pairs (a fraudster changing the
    vendor ID needs a whole second vendor profile, a different problem).
 
@@ -77,18 +77,18 @@ generate  ->  ingest + clean  ->  validate  ->  detect duplicates  ->  rank  -> 
    Both come from one library (`rapidfuzz`), so the hybrid costs no extra
    dependency.
 
-3. **Blend into one confidence.** Four signals — invoice number, vendor name,
-   amount (exact match), and date proximity — combine via a weighted average into
+3. **Blend into one confidence.** Four signals - invoice number, vendor name,
+   amount (exact match), and date proximity - combine via a weighted average into
    a single `confidence` in `[0, 1]`. No single field catches every trick; the
    blend sees the whole picture.
 
 4. **Grade honestly.** Because the synthetic data ships with a ground-truth
    answer key, we measure **precision and recall** across confidence thresholds
    and pick the operating point. On this data, precision and recall are both
-   1.0 across a wide band (0.70–0.90); we use **0.90** (the most conservative cut
+   1.0 across a wide band (0.70-0.90); we use **0.90** (the most conservative cut
    that still catches everything).
 
-> **Honest caveat:** 100% precision/recall is on synthetic data *I designed* —
+> **Honest caveat:** 100% precision/recall is on synthetic data *I designed* -
 > it proves the mechanism works and quantifies the gap vs exact-match. It is not
 > a claim of perfection on real data. The threshold *sweep* (not a hard-coded
 > cutoff) is the defensible artifact: it shows the safe operating band, which on
@@ -107,7 +107,7 @@ auto-approvable, so a human only reviews the minority that need it (here, 38%).
 
 Two layers, kept honest:
 
-- **The detector** is a similarity / record-linkage engine — it blends per-field
+- **The detector** is a similarity / record-linkage engine - it blends per-field
   similarity scores into one confidence, with weights chosen by analysis.
 - **On top of it**, an optional **trained logistic-regression classifier**
   *learns* the weights and decision boundary from labeled examples and is
@@ -121,7 +121,7 @@ python -m invoice_engine.ml.run     # train + evaluate the model (optional)
 On a held-out test set the model reaches precision 0.98 / recall 1.00, and learns
 for itself which signals matter most (it weights exact amount-match highest):
 
-![ML classifier — held-out evaluation and learned weights](docs/ml-output.png)
+![ML classifier - held-out evaluation and learned weights](docs/ml-output.png)
 
 The core pipeline runs fully **without** this layer. Full explanation, including
 what the model learns and why: **[docs/ML.md](docs/ML.md)**.
@@ -134,12 +134,12 @@ what the model learns and why: **[docs/ML.md](docs/ML.md)**.
 |---|---|
 | **Python** | The ML / similarity / data-cleaning ecosystem lives here. |
 | **polars** | Columnar + multithreaded; scales to realistic volumes and trains the modern (Spark/DuckDB-style) way of thinking. |
-| **SQLite** | Single-file relational DB, real SQL, no server — mirrors the relational AP/ERP world while keeping the repo clone-and-run. |
+| **SQLite** | Single-file relational DB, real SQL, no server - mirrors the relational AP/ERP world while keeping the repo clone-and-run. |
 | **rapidfuzz** | Fast, well-tested fuzzy string similarity for the hybrid metrics. |
 | **CLI report** | Fast to build and demo; keeps focus on the data/ML core. |
 
 Two data-modeling choices that matter in AP: `invoice_id` is stored as **TEXT**
-(so `00123` is not silently turned into `123` — that *is* the signal we catch),
+(so `00123` is not silently turned into `123` - that *is* the signal we catch),
 and money is handled as **exact Decimal** (never float) so integrity checks stay
 trustworthy.
 
@@ -149,46 +149,46 @@ trustworthy.
 
 ```
 invoice_engine/
-├── generator/        # Stage 1: build the synthetic dataset
-│   ├── config.py     # One settings dataclass: volume, seed, how many of each problem to plant.
-│   ├── pool.py       # Builds the fixed pool of ~40 recurring vendors/customers.
-│   ├── core.py       # Generates clean, valid invoices (lines that sum, sane dates).
-│   ├── messiness.py  # Plants the problems (duplicates + integrity errors) + writes the answer key.
-│   └── generate.py   # Entry point: chains the above and writes raw CSVs.
-│
-├── ingestion/        # Stage 2: load raw data into the database
-│   ├── load.py       # Reads CSVs with FORCED types (so leading zeros / decimals survive).
-│   ├── store.py      # Writes the cleaned frames into SQLite (money/dates as exact text).
-│   └── build.py      # Entry point: read -> clean -> store, then verify it survived.
-│
-├── cleaning/
-│   └── normalize.py  # Adds a normalized vendor-name column (lowercased, suffixes stripped) for matching.
-│
-├── validation/       # Stage 3: is each invoice internally valid?
-│   ├── load.py       # Reads the DB back into typed frames (text -> Decimal/Date).
-│   ├── checks.py     # The integrity checks: line-item sum, required fields, date sanity, missing PO.
-│   └── run.py        # Entry point: run all checks, store findings, sanity-check vs the answer key.
-│
-├── duplicates/       # Stage 4: the centerpiece — find near-duplicate invoices
-│   ├── similarity.py # The two hybrid metrics (edit-distance for id, token-set for name).
-│   ├── blocking.py   # Narrows 2.3M possible pairs to candidates by party_id (~40x cut).
-│   ├── score.py      # Blends 4 per-field signals into one confidence score per pair.
-│   ├── grade.py      # Precision/recall vs the answer key + the naive exact-match baseline.
-│   ├── persist.py    # Writes pairs above the threshold to the duplicate_findings table.
-│   └── run.py        # Entry point: detect + grade + show the fuzzy-vs-exact-match proof.
-│
-├── scoring/          # Stage 5: rank everything for a human
-│   ├── queue.py      # Merges validation + duplicate findings into one ranked row-per-invoice.
-│   └── run.py        # Entry point: detect -> persist -> build queue -> print the split.
-│
-├── reporting/        # Stage 6: the human-facing view
-│   ├── report.py     # Renders the sectioned CLI report (summary, headline, breakdown, top cases).
-│   └── run.py        # Entry point with flags: --all (full dump), --csv (export), --top N.
-│
-└── ml/               # Optional: train an ML model on the similarity features
-    ├── dataset.py    # Builds the (features, labels) table from scored pairs + answer key.
-    ├── model.py      # Train/test split, logistic regression, held-out evaluation.
-    └── run.py        # Entry point: train + report precision/recall + learned weights.
++-- generator/        # Stage 1: build the synthetic dataset
+|   +-- config.py     # One settings dataclass: volume, seed, how many of each problem to plant.
+|   +-- pool.py       # Builds the fixed pool of ~40 recurring vendors/customers.
+|   +-- core.py       # Generates clean, valid invoices (lines that sum, sane dates).
+|   +-- messiness.py  # Plants the problems (duplicates + integrity errors) + writes the answer key.
+|   +-- generate.py   # Entry point: chains the above and writes raw CSVs.
+|
++-- ingestion/        # Stage 2: load raw data into the database
+|   +-- load.py       # Reads CSVs with FORCED types (so leading zeros / decimals survive).
+|   +-- store.py      # Writes the cleaned frames into SQLite (money/dates as exact text).
+|   +-- build.py      # Entry point: read -> clean -> store, then verify it survived.
+|
++-- cleaning/
+|   +-- normalize.py  # Adds a normalized vendor-name column (lowercased, suffixes stripped) for matching.
+|
++-- validation/       # Stage 3: is each invoice internally valid?
+|   +-- load.py       # Reads the DB back into typed frames (text -> Decimal/Date).
+|   +-- checks.py     # The integrity checks: line-item sum, required fields, date sanity, missing PO.
+|   +-- run.py        # Entry point: run all checks, store findings, sanity-check vs the answer key.
+|
++-- duplicates/       # Stage 4: the centerpiece - find near-duplicate invoices
+|   +-- similarity.py # The two hybrid metrics (edit-distance for id, token-set for name).
+|   +-- blocking.py   # Narrows 2.3M possible pairs to candidates by party_id (~40x cut).
+|   +-- score.py      # Blends 4 per-field signals into one confidence score per pair.
+|   +-- grade.py      # Precision/recall vs the answer key + the naive exact-match baseline.
+|   +-- persist.py    # Writes pairs above the threshold to the duplicate_findings table.
+|   +-- run.py        # Entry point: detect + grade + show the fuzzy-vs-exact-match proof.
+|
++-- scoring/          # Stage 5: rank everything for a human
+|   +-- queue.py      # Merges validation + duplicate findings into one ranked row-per-invoice.
+|   +-- run.py        # Entry point: detect -> persist -> build queue -> print the split.
+|
++-- reporting/        # Stage 6: the human-facing view
+|   +-- report.py     # Renders the sectioned CLI report (summary, headline, breakdown, top cases).
+|   +-- run.py        # Entry point with flags: --all (full dump), --csv (export), --top N.
+|
++-- ml/               # Optional: train an ML model on the similarity features
+    +-- dataset.py    # Builds the (features, labels) table from scored pairs + answer key.
+    +-- model.py      # Train/test split, logistic regression, held-out evaluation.
+    +-- run.py        # Entry point: train + report precision/recall + learned weights.
 ```
 
 ---
@@ -216,7 +216,7 @@ options (`--top`, `--all`, `--csv`), the optional ML step, and Windows notes are
 in **[docs/RUNNING.md](docs/RUNNING.md)**.
 
 > **Run it on your own ERP invoices** (Oracle / SAP exports) instead of the
-> synthetic data — column mapping and steps in
+> synthetic data - column mapping and steps in
 > **[docs/USE_YOUR_OWN_DATA.md](docs/USE_YOUR_OWN_DATA.md)**.
 
 ---
@@ -228,11 +228,11 @@ in **[docs/RUNNING.md](docs/RUNNING.md)**.
 
 **Summary + the headline (fuzzy vs naive exact-match):**
 
-![Review report — summary and headline](docs/report-headline.png)
+![Review report - summary and headline](docs/report-headline.png)
 
 **Breakdown by problem type and the top cases to review:**
 
-![Review report — breakdown and top cases](docs/report-breakdown.png)
+![Review report - breakdown and top cases](docs/report-breakdown.png)
 
 ---
 
@@ -247,9 +247,9 @@ Deliberately scoped out of v1 (candidates for v2):
 
 - Real OCR / PDF extraction (this engine assumes structured input). A future
   extraction layer would read invoice images into the **same unified schema**, so
-  cleaning / validation / duplicate-detection stay unchanged — that is exactly
+  cleaning / validation / duplicate-detection stay unchanged - that is exactly
   why ingestion is its own module.
 - A fuzzy-*name* blocking pass to also catch "same vendor under two profiles".
-- A Postgres backend (e.g. with `pg_trgm`) — the ingestion seam keeps this isolated.
+- A Postgres backend (e.g. with `pg_trgm`) - the ingestion seam keeps this isolated.
 - GL reconciliation, multi-currency conversion, and a web dashboard.
 ```

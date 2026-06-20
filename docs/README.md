@@ -4,8 +4,8 @@ Put your CLI report screenshots here so the images in the main README resolve.
 
 Expected filenames (referenced from the top-level `README.md`):
 
-- `report-headline.png`  — the SUMMARY + "fuzzy vs naive exact-match" headline.
-- `report-breakdown.png` — the BREAKDOWN BY PROBLEM TYPE + TOP CASES sections.
+- `report-headline.png`  - the SUMMARY + "fuzzy vs naive exact-match" headline.
+- `report-breakdown.png` - the BREAKDOWN BY PROBLEM TYPE + TOP CASES sections.
 
 To capture them:
 
