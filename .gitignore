@@ -1,0 +1,57 @@
+# =====================================================================
+#  PRIVATE / LOCAL-ONLY  — never push to GitHub
+#  (project framing, decision logs, progress, schema notes)
+# =====================================================================
+CLAUDE.md
+DECISIONS.md
+PROGRESS.md
+SCHEMA.md
+PROJECT_CHEATSHEET.md
+
+# Catch-all for any future personal notes (name them this way and they stay local)
+*.private.md
+private/
+NOTES.md
+TODO.md
+scratch/
+
+# --- Secrets / keys ---
+.env
+*.env
+.env.*
+*.key
+*.pem
+secrets/
+
+# --- Data: synthetic data, real datasets, and DB files ---
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# =====================================================================
+#  Python
+# =====================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# =====================================================================
+#  OS / editor cruft
+# =====================================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

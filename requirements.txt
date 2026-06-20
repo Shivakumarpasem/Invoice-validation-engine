@@ -1,0 +1,12 @@
+# Core data processing
+polars>=1.0
+
+# Synthetic data generation (Step 3)
+Faker>=25.0
+
+# Fuzzy string similarity for duplicate detection (Step 6).
+# Edit-distance for invoice_id, token-set ratio for vendor names.
+rapidfuzz>=3.0
+
+# Trained ML classifier on the similarity features (Step 10).
+scikit-learn>=1.3
